@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% block title %}Upload Medical Report · Disease Risk Prediction{% endblock %}
+{% block content %}
+
+<h1>Diabetes & Multi-Disease Risk Prediction</h1>
+<p class="lede">Upload a patient's medical report (PDF or image). The explainable machine learning framework will automatically extract clinical laboratory parameters, validate measurements, and estimate risk across chronic diseases.</p>
+
+<section class="notice">
+  <strong>AI-assisted research screening aid.</strong>
+  Predictions are statistical risk estimates from research models. They are not a medical diagnosis, prescription, or clinical decision.
+</section>
+
+{% if error %}
+  <p class="alert">{{ error }}</p>
+{% endif %}
+
+<div class="card">
+  <h2>Upload Patient Medical Report</h2>
+  <p class="muted">Supported formats: PDF documents or clear lab report images (PNG, JPG). Personal identifiers such as name and address are strictly excluded from analysis.</p>
+
+  <form id="uploadForm" method="post" action="{{ url_for('upload_report') }}" enctype="multipart/form-data">
+    <div class="upload-zone" id="dropZone">
+      <div class="upload-icon">📄</div>
+      <p class="upload-title">Drag & Drop Medical Report Here</p>
+      <p class="upload-subtitle">or click to browse your device</p>
+      <input type="file" id="fileInput" name="report_file" accept=".pdf,.png,.jpg,.jpeg,.bmp,.tiff" style="display: none;">
+      <button type="button" class="button" id="browseBtn" style="pointer-events: auto;">Browse Report File</button>
+    </div>
+
+    <!-- Selected File Preview -->
+    <div id="fileCard" class="file-card" style="display: none;">
+      <div class="file-info">
+        <span style="font-size: 1.5rem;">📋</span>
+        <div>
+          <div id="fileName" class="file-name">Report.pdf</div>
+          <div id="fileSize" class="file-size">0 KB</div>
+        </div>
+      </div>
+      <button type="button" class="btn-remove" id="removeFileBtn">Remove</button>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div id="progressContainer" class="progress-bar-container">
+      <div id="progressBar" class="progress-bar-fill"></div>
+    </div>
+    <div id="progressStatus" class="muted" style="display: none; margin-bottom: 0.8rem; font-weight: 500;">
+      Extracting clinical biomarkers & preparing validation...
+    </div>
+
+    <div style="margin-top: 1.25rem;">
+      <button type="submit" id="analyzeBtn" class="button" style="width: 100%; padding: 0.85rem; font-size: 1.05rem;" disabled>
+        🔍 Analyze Medical Report
+      </button>
+    </div>
+  </form>
+
+  <!-- Demonstration Test Shortcuts -->
+  <div class="demo-shortcuts">
+    <p class="eyebrow">Academic Demonstration Pre-loaded Test Cases</p>
+    <p class="muted" style="font-size: 0.85rem; margin-top: 0.2rem;">Click any sample below to immediately test the extraction and prediction pipeline:</p>
+    <div class="demo-chips">
+      <a href="{{ url_for('load_demo_report', sample_name='diabetic') }}" class="demo-chip">
+        📄 Sample 1: Elevated Diabetic & Cardio Risk Report (PDF)
+      </a>
+      <a href="{{ url_for('load_demo_report', sample_name='normal') }}" class="demo-chip">
+        📄 Sample 2: Normal Routine Checkup Report (PDF)
+      </a>
+      <a href="{{ url_for('load_demo_report', sample_name='image') }}" class="demo-chip">
+        🖼️ Sample 3: Scanned Lab Slip (Image PNG)
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const dropZone = document.getElementById('dropZone');
+  const fileInput = document.getElementById('fileInput');
+  const browseBtn = document.getElementById('browseBtn');
+  const fileCard = document.getElementById('fileCard');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const removeFileBtn = document.getElementById('removeFileBtn');
+  const analyzeBtn = document.getElementById('analyzeBtn');
+  const uploadForm = document.getElementById('uploadForm');
+  const progressContainer = document.getElementById('progressContainer');
+  const progressBar = document.getElementById('progressBar');
+  const progressStatus = document.getElementById('progressStatus');
+
+  browseBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    fileInput.click();
+  });
+
+  dropZone.addEventListener('click', () => {
+    fileInput.click();
+  });
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.add('dragover');
+    });
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropZone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone.classList.remove('dragover');
+    });
+  });
+
+  dropZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      handleSelectedFile(files[0]);
+    }
+  });
+
+  fileInput.addEventListener('change', (e) => {
+    if (fileInput.files.length > 0) {
+      handleSelectedFile(fileInput.files[0]);
+    }
+  });
+
+  function handleSelectedFile(file) {
+    fileName.textContent = file.name + " ✓";
+    fileSize.textContent = (file.size / 1024).toFixed(1) + " KB";
+    fileCard.style.display = 'flex';
+    analyzeBtn.disabled = false;
+    analyzeBtn.style.opacity = '1';
+    analyzeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  removeFileBtn.addEventListener('click', () => {
+    fileInput.value = '';
+    fileCard.style.display = 'none';
+    analyzeBtn.disabled = true;
+    analyzeBtn.style.opacity = '0.6';
+  });
+
+  uploadForm.addEventListener('submit', () => {
+    progressContainer.style.display = 'block';
+    progressStatus.style.display = 'block';
+    analyzeBtn.disabled = true;
+    analyzeBtn.innerHTML = '⏳ Extracting & Analyzing Report...';
+
+    let width = 10;
+    const interval = setInterval(() => {
+      if (width >= 90) {
+        clearInterval(interval);
+      } else {
+        width += 15;
+        progressBar.style.width = width + '%';
+      }
+    }, 200);
+  });
+</script>
+
+{% endblock %}

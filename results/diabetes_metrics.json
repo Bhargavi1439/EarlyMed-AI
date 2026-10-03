@@ -1,0 +1,92 @@
+{
+  "logistic_regression": {
+    "accuracy": 0.7077922077922078,
+    "precision": 0.6,
+    "recall": 0.5,
+    "specificity": 0.82,
+    "f1": 0.5454545454545454,
+    "roc_auc": 0.812962962962963,
+    "f_beta": 0.5172413793103449,
+    "pr_auc": 0.673326163579994,
+    "log_loss": 0.5138460434185029,
+    "mcc": 0.3357587600556811,
+    "confusion_matrix": {
+      "true_negative": 82,
+      "false_positive": 18,
+      "false_negative": 27,
+      "true_positive": 27
+    }
+  },
+  "decision_tree": {
+    "accuracy": 0.7337662337662337,
+    "precision": 0.6857142857142857,
+    "recall": 0.4444444444444444,
+    "specificity": 0.89,
+    "f1": 0.5393258426966292,
+    "roc_auc": 0.8118518518518518,
+    "f_beta": 0.47808764940239046,
+    "pr_auc": 0.6427418311564412,
+    "log_loss": 1.598033591323049,
+    "mcc": 0.38081440078224094,
+    "confusion_matrix": {
+      "true_negative": 89,
+      "false_positive": 11,
+      "false_negative": 30,
+      "true_positive": 24
+    }
+  },
+  "random_forest": {
+    "accuracy": 0.7662337662337663,
+    "precision": 0.7045454545454546,
+    "recall": 0.5740740740740741,
+    "specificity": 0.87,
+    "f1": 0.6326530612244898,
+    "roc_auc": 0.8166666666666667,
+    "f_beta": 0.5961538461538461,
+    "pr_auc": 0.6786797989959342,
+    "log_loss": 0.494877597602001,
+    "mcc": 0.4690613163740094,
+    "confusion_matrix": {
+      "true_negative": 87,
+      "false_positive": 13,
+      "false_negative": 23,
+      "true_positive": 31
+    }
+  },
+  "xgboost": {
+    "accuracy": 0.7402597402597403,
+    "precision": 0.6346153846153846,
+    "recall": 0.6111111111111112,
+    "specificity": 0.81,
+    "f1": 0.6226415094339622,
+    "roc_auc": 0.83,
+    "f_beta": 0.6156716417910447,
+    "pr_auc": 0.7180654882179808,
+    "log_loss": 0.5067822337150574,
+    "mcc": 0.42490498154100403,
+    "confusion_matrix": {
+      "true_negative": 81,
+      "false_positive": 19,
+      "false_negative": 21,
+      "true_positive": 33
+    }
+  },
+  "naive_bayes": {
+    "accuracy": 0.7012987012987013,
+    "precision": 0.5666666666666667,
+    "recall": 0.6296296296296297,
+    "specificity": 0.74,
+    "f1": 0.5964912280701754,
+    "roc_auc": 0.7646296296296297,
+    "f_beta": 0.6159420289855072,
+    "pr_auc": 0.5961111041371301,
+    "log_loss": 0.9440041386307827,
+    "mcc": 0.36167967605963075,
+    "confusion_matrix": {
+      "true_negative": 74,
+      "false_positive": 26,
+      "false_negative": 20,
+      "true_positive": 34
+    }
+  }
+}

@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% block title %}Review Extracted Clinical Data · Disease Prediction{% endblock %}
+{% block content %}
+
+<p class="eyebrow">Step 2 of 3 · Clinical Information Review</p>
+<h1>Medical Information Extracted From Report</h1>
+<p class="lede">Review the extracted clinical values identified from the patient medical report. All values are validated against physiological bounds before model evaluation.</p>
+
+<section class="notice">
+  <strong>Verification check.</strong>
+  Review the detected laboratory parameters below. You may optionally edit any specific value if an OCR typographical discrepancy is detected.
+</section>
+
+{% if warnings %}
+  <div class="card" style="border-left: 4px solid #f59e0b; background: #fffbeb;">
+    <h3 style="margin-top: 0; color: #b45309;">⚠️ Physiological & Normalization Alerts</h3>
+    <ul style="margin-bottom: 0; color: #92400e;">
+      {% for w in warnings %}
+        <li>{{ w }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<!-- Document Metadata Card -->
+<div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; padding: 1rem 1.4rem;">
+  <div>
+    <span class="muted">Document:</span> <strong>{{ report_meta.file_name }}</strong> ({{ report_meta.file_size_kb }} KB)
+    <span class="badge {% if report_meta.ocr_used %}badge-warning{% else %}badge-verified{% endif %}" style="margin-left: 0.5rem;">
+      {% if report_meta.ocr_used %}Scanned OCR Extracted{% else %}Digital Text Parsed{% endif %}
+    </span>
+  </div>
+  <div>
+    <a href="{{ url_for('predict') }}" class="button" style="background: transparent; border: 1px solid var(--line); color: var(--ink); padding: 0.4rem 0.8rem; font-size: 0.85rem;">
+      Upload Different Report
+    </a>
+  </div>
+</div>
+
+<!-- Extracted Parameters Table Card -->
+<div class="card">
+  <h2>Observed Medical Parameters ({{ extracted_parameters|length }} Found)</h2>
+  
+  {% if extracted_parameters %}
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Extracted Value</th>
+          <th>Standard Unit</th>
+          <th>Reference Interval</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for key, item in extracted_parameters.items() %}
+          <tr id="row-{{ key }}">
+            <td><strong>{{ item.label }}</strong></td>
+            <td>
+              <span id="val-display-{{ key }}">{{ item.normalized_value }}</span>
+              {% if item.conversion_note %}
+                <span class="hint" style="color: #b45309; font-size: 0.78rem;">{{ item.conversion_note }}</span>
+              {% endif %}
+            </td>
+            <td>{{ item.standard_unit }}</td>
+            <td class="muted" style="font-size: 0.85rem;">
+              {% if key == 'glucose' %}70 – 100 mg/dL (fasting)
+              {% elif key == 'systolic_bp' %}< 120 mmHg
+              {% elif key == 'diastolic_bp' %}< 80 mmHg
+              {% elif key == 'bmi' %}18.5 – 24.9 kg/m²
+              {% elif key == 'hba1c' %}4.0 – 5.6 %
+              {% elif key == 'cholesterol' %}< 200 mg/dL
+              {% elif key == 'creatinine' %}0.5 – 1.2 mg/dL
+              {% elif key == 'urea' %}7 – 20 mg/dL
+              {% elif key == 'hemoglobin' %}12.0 – 17.5 g/dL
+              {% else %}Standard clinical range
+              {% endif %}
+            </td>
+            <td>
+              {% if key in flagged_keys %}
+                <span class="badge badge-warning">Out of Range</span>
+              {% else %}
+                <span class="badge badge-verified">✓ Verified</span>
+              {% endif %}
+            </td>
+            <td>
+              <button type="button" class="demo-chip" style="font-size: 0.78rem; padding: 0.2rem 0.5rem;" onclick="openEditModal('{{ key }}', '{{ item.label }}', '{{ item.normalized_value }}', '{{ item.standard_unit }}')">
+                ✏️ Edit
+              </button>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="alert">No clinical parameters could be recognized from the document. Please ensure the document is clear and contains medical lab results.</p>
+  {% endif %}
+</div>
+
+<!-- Fields Not Found Card -->
+<div class="card" style="background: #fafbfc;">
+  <h2>Fields Not Found in Report</h2>
+  <p class="muted">The following secondary features were not present in this report. If evaluated, models will utilize their training-calibrated median imputation strategy rather than arbitrary assumptions.</p>
+  
+  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem;">
+    {% for f in fields_missing %}
+      <span class="badge badge-missing" style="font-size: 0.82rem; padding: 0.35rem 0.65rem;">
+        {{ f|replace('_', ' ')|title }} · <span style="font-weight: 400; color: #888;">Not found</span>
+      </span>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Disease Evaluation Readiness Banner -->
+<div class="card">
+  <h2>Multi-Disease Evaluation Readiness</h2>
+  <p class="muted">Based strictly on the available clinical biomarkers extracted from this report:</p>
+
+  <div class="disease-risk-grid">
+    <!-- Diabetes Readiness -->
+    <div class="disease-card {% if readiness.diabetes.ready %}risk-normal{% else %}risk-unevaluated{% endif %}">
+      <div class="eyebrow">Metabolic Module</div>
+      <h3 style="margin: 0.2rem 0;">Diabetes Risk</h3>
+      <p style="font-size: 0.88rem; margin: 0.4rem 0;">{{ readiness.diabetes.reason }}</p>
+      <span class="badge {% if readiness.diabetes.ready %}badge-verified{% else %}badge-missing{% endif %}">
+        {% if readiness.diabetes.ready %}Ready for Prediction{% else %}Insufficient Data{% endif %}
+      </span>
+    </div>
+
+    <!-- Heart Disease Readiness -->
+    <div class="disease-card {% if readiness.heart_disease.ready %}risk-normal{% else %}risk-unevaluated{% endif %}">
+      <div class="eyebrow">Cardiovascular Module</div>
+      <h3 style="margin: 0.2rem 0;">Heart Disease Risk</h3>
+      <p style="font-size: 0.88rem; margin: 0.4rem 0;">{{ readiness.heart_disease.reason }}</p>
+      <span class="badge {% if readiness.heart_disease.ready %}badge-verified{% else %}badge-missing{% endif %}">
+        {% if readiness.heart_disease.ready %}Ready for Prediction{% else %}Insufficient Data{% endif %}
+      </span>
+    </div>
+
+    <!-- Kidney Disease Readiness -->
+    <div class="disease-card {% if readiness.kidney_disease.ready %}risk-normal{% else %}risk-unevaluated{% endif %}">
+      <div class="eyebrow">Renal Function Module</div>
+      <h3 style="margin: 0.2rem 0;">Kidney Disease (CKD)</h3>
+      <p style="font-size: 0.88rem; margin: 0.4rem 0;">{{ readiness.kidney_disease.reason }}</p>
+      <span class="badge {% if readiness.kidney_disease.ready %}badge-verified{% else %}badge-missing{% endif %}">
+        {% if readiness.kidney_disease.ready %}Ready for Prediction{% else %}Insufficient Data{% endif %}
+      </span>
+    </div>
+  </div>
+
+  <form method="post" action="{{ url_for('run_prediction') }}" id="predictForm" style="margin-top: 1.5rem;">
+    <!-- Hidden input storing verified JSON parameters -->
+    <input type="hidden" name="verified_parameters_json" id="verifiedParamsInput" value='{{ parameters_json|e }}'>
+    <input type="hidden" name="report_id" value="{{ report_id }}">
+    <input type="hidden" name="file_name" value="{{ report_meta.file_name }}">
+    <input type="hidden" name="file_size_kb" value="{{ report_meta.file_size_kb }}">
+    <input type="hidden" name="ocr_used" value="{{ 'True' if report_meta.ocr_used else 'False' }}">
+    
+    <button type="submit" class="button" style="width: 100%; padding: 0.9rem; font-size: 1.1rem; text-align: center;">
+      🚀 Continue to AI Multi-Disease Prediction
+    </button>
+  </form>
+</div>
+
+<!-- Small Minimal Inline Edit Modal (Avoids entire 8-field form) -->
+<div id="editModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+  <div style="background: #fff; border-radius: 10px; width: 90%; max-width: 420px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+    <h3 id="modalParamTitle" style="margin-top: 0;">Edit Extracted Value</h3>
+    <p class="muted" style="font-size: 0.85rem;">Modify only if a character recognition discrepancy occurred:</p>
+    
+    <label style="display: block; margin: 1rem 0; font-weight: 600;">
+      <span id="modalParamLabel">Value</span> (<span id="modalParamUnit"></span>):
+      <input type="number" id="modalInputVal" step="any" style="width: 100%; margin-top: 0.4rem; padding: 0.5rem; border: 1px solid #ccc; border-radius: 6px;">
+    </label>
+
+    <div style="display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 1.25rem;">
+      <button type="button" class="button" style="background: #e2e8f0; color: #334155;" onclick="closeEditModal()">Cancel</button>
+      <button type="button" class="button" onclick="saveEditedValue()">Save Value</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentEditingKey = null;
+  let paramsData = JSON.parse(document.getElementById('verifiedParamsInput').value);
+
+  function openEditModal(key, label, currentVal, unit) {
+    currentEditingKey = key;
+    document.getElementById('modalParamTitle').textContent = `Edit ${label}`;
+    document.getElementById('modalParamLabel').textContent = label;
+    document.getElementById('modalParamUnit').textContent = unit || 'unit';
+    document.getElementById('modalInputVal').value = currentVal;
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'flex';
+  }
+
+  function closeEditModal() {
+    document.getElementById('editModal').style.display = 'none';
+    currentEditingKey = null;
+  }
+
+  function saveEditedValue() {
+    if (!currentEditingKey) return;
+    const newVal = parseFloat(document.getElementById('modalInputVal').value);
+    if (!isNaN(newVal)) {
+      paramsData[currentEditingKey].normalized_value = newVal;
+      paramsData[currentEditingKey].value = newVal;
+      document.getElementById(`val-display-${currentEditingKey}`).textContent = newVal;
+      document.getElementById('verifiedParamsInput').value = JSON.stringify(paramsData);
+    }
+    closeEditModal();
+  }
+</script>
+
+{% endblock %}

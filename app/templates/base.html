@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Diabetes Risk Prototype{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a class="brand" href="{{ url_for('index') }}">EarlyMed-AI</a>
+      </div>
+      <nav class="side-nav">
+        <a href="{{ url_for('index') }}">Home</a>
+        
+        <details class="nav-group" open>
+          <summary>Upload Report</summary>
+          <div class="nav-sub">
+            <a href="{{ url_for('predict') }}">Individual Risk Prediction</a>
+          </div>
+        </details>
+        
+        <details class="nav-group" open>
+          <summary>Exploratory Data Analysis</summary>
+          <div class="nav-sub">
+            <a href="{{ url_for('visualize') }}#eda-tab">Exploratory Data Analysis (EDA)</a>
+          </div>
+        </details>
+        
+        <details class="nav-group" open>
+          <summary>Visualization Options</summary>
+          <div class="nav-sub">
+            <a href="{{ url_for('visualize') }}#overview-tab">Health dataset overview</a>
+            <a href="{{ url_for('visualize') }}#risk-factor-tab">Risk Factor Analysis</a>
+            <a href="{{ url_for('visualize') }}#models-tab">Model Performance</a>
+            <a href="{{ url_for('visualize') }}#metrics-tab">Detailed Metrics</a>
+          </div>
+        </details>
+      </nav>
+    </aside>
+    <div class="main-content">
+      <main class="wrap">
+        {% block content %}{% endblock %}
+      </main>
+      <footer class="wrap footer">
+        3rd-year CSE prototype. Screening aid only - not a medical diagnosis or substitute for clinical care.
+      </footer>
+    </div>
+  </div>
+</body>
+
+</html>

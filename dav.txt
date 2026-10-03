@@ -1,0 +1,75 @@
+python app\app.py
+🌐 Open in Browser:
+Once you see * Running on http://127.0.0.1:5050, open your browser:
+
+📊 Visualizations: http://127.0.0.1:5050/visualize
+🩺 Prediction: http://127.0.0.1:5050/predict
+🏠 Home: http://127.0.0.1:5050/
+1. Machine Learning Models
+In  train_diabetes.py, 3 classification models are trained, evaluated, and compared on the same stratified train/test split:
+
+Logistic Regression (LogisticRegression(max_iter=1000, solver="lbfgs"))
+Decision Tree Classifier (DecisionTreeClassifier(max_depth=6, min_samples_leaf=8))
+Random Forest Classifier (RandomForestClassifier(n_estimators=200, max_depth=8, min_samples_leaf=4))
+Model Selection Strategy: The pipeline compares all three models on held-out test data using the roc_auc metric (
+
+train_diabetes.py:L87
+). Random Forest achieved the highest score and is saved to model.joblib to serve live predictions in the Flask web app. 
+(Note: As noted in  README.md
+, placeholders exist in the repository layout for future models like XGBoost and CatBoost, but currently these 3 are implemented).
+2. Statistics & Metrics
+The project computes both clinical dataset statistics and machine learning evaluation statistics:
+
+A. Machine Learning Evaluation Metrics (Held-out Test Set of 154 samples)
+Implemented in 
+
+evaluate.py
+ and stored in 
+
+diabetes_metrics.json
+:
+
+Accuracy:
+Random Forest: 74.7%
+Decision Tree: 74.0%
+Logistic Regression: 70.8%
+Precision: RF: 66.7%, DT: 69.4%, LR: 60.0%
+Recall (Sensitivity): RF: 55.6%, DT: 46.3%, LR: 50.0%
+F1-Score: RF: 60.6%, DT: 55.6%, LR: 54.5%
+ROC-AUC Score: RF: 81.6%, DT: 81.5%, LR: 81.3%
+Confusion Matrix Counts (for Random Forest):
+True Negatives (TN): 85
+False Positives (FP): 15
+False Negatives (FN): 24
+True Positives (TP): 30
+B. Dataset & Descriptive Statistics
+Computed dynamically in 
+
+app.py
+ from the Pima Indians dataset:
+
+Sample Counts: 768 total records (614 train / 154 test, 80/20 stratified split).
+Class Balance: 500 Non-Diabetic (65.1%) vs. 268 Diabetic (34.9%).
+Feature Averages by Class: Grouped column means (Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age) comparing diabetic vs. non-diabetic cohorts.
+Data Preprocessing Statistics: Invalid physiological zeros in Glucose, BloodPressure, SkinThickness, Insulin, and BMI are replaced with NaN and imputed using median values, followed by standard z-score normalization (
+
+preprocessing.py
+).
+3. Visualizations
+The visualizations are built using Chart.js and rendered in the web dashboard at /visualize (
+
+visualize.html
+):
+
+Target Class Distribution (Doughnut Chart):
+Displays the ratio and patient count of Non-Diabetic (Outcome = 0) vs. Diabetic (Outcome = 1).
+Model Performance Comparison (Grouped Multi-Bar Chart):
+Side-by-side comparison of Accuracy, Precision, Recall, F1-Score, and ROC-AUC percentages across all 3 models.
+Clinical Feature Profiling by Class (Dual Bar Chart):
+Visualizes the mean value of each clinical feature for Diabetic vs. Non-Diabetic patient cohorts.
+Glucose Concentration by Outcome (Stacked Bar Histogram):
+Binned distribution showing patient frequency across plasma glucose intervals (mg/dL), stacked by diabetic outcome.
+Confusion Matrix Grid:
+A color-coded 2x2 matrix display showing the distribution of True Negatives, False Positives, False Negatives, and True Positives on test predictions.
+Executive KPI Cards:
+Summary visual indicator cards highlighting Total Records (768), Features (8), Active Deployed Model (Random Forest), and Held-out ROC-AUC (81.6%).

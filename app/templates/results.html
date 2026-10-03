@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+{% block title %}Prediction Results · Multi-Disease AI Framework{% endblock %}
+{% block content %}
+
+<p class="eyebrow">Step 3 of 3 · Final Evaluation Dashboard</p>
+<h1>Clinical Risk Assessment & Explainable AI Dashboard</h1>
+<p class="lede">Comprehensive multi-disease screening results synthesized from the patient's medical report using validated machine learning models and local explanation surrogates.</p>
+
+<!-- ── SECTION D: Overall Health Risk Index Banner ─────────────────────── -->
+<div class="index-box">
+  <div>
+    <span class="eyebrow" style="color: #cbd5e1;">Composite Health Metric</span>
+    <h2 style="color: #fff; margin: 0.25rem 0 0.5rem; font-size: 1.4rem;">Overall Health Risk Index</h2>
+    <div class="index-value-display">
+      <span class="index-score">{{ overall_index.score }}</span>
+      <span class="index-max">/ 100</span>
+    </div>
+    <div style="margin-top: 0.5rem;">
+      <span class="badge {% if overall_index.score >= 70 %}badge-danger{% elif overall_index.score >= 40 %}badge-warning{% else %}badge-verified{% endif %}" style="font-size: 0.9rem; padding: 0.35rem 0.8rem;">
+        {{ overall_index.category }}
+      </span>
+    </div>
+    <p style="color: #94a3b8; font-size: 0.82rem; margin: 0.75rem 0 0; max-width: 52ch;">
+      {{ overall_index.disclaimer }}
+    </p>
+  </div>
+  <div style="text-align: right; border-left: 1px solid rgba(255,255,255,0.15); padding-left: 1.5rem;">
+    <div style="font-size: 0.82rem; color: #94a3b8;">Evaluated Conditions</div>
+    <div style="font-size: 1.6rem; font-weight: 700; color: #fff;">{{ overall_index.eval_count }} / {{ overall_index.total_diseases }}</div>
+    <div style="font-size: 0.8rem; color: #cbd5e1; margin-top: 0.3rem;">Diabetes · Heart · CKD</div>
+  </div>
+</div>
+
+<!-- ── SECTION C: Disease-Specific Risk Predictions ────────────────────── -->
+<div class="card">
+  <h2>Disease Risk Estimations</h2>
+  <p class="muted">Independent predictions evaluated by benchmarked classifiers calibrated on clinical research cohorts:</p>
+
+  <div class="disease-risk-grid">
+    <!-- 1. Diabetes -->
+    {% set d_res = disease_results.diabetes %}
+    <div class="disease-card {% if not d_res.evaluated %}risk-unevaluated{% elif d_res.predicted_class == 1 %}risk-elevated{% else %}risk-normal{% endif %}">
+      <div class="eyebrow">Endocrine & Metabolic</div>
+      <h3 style="margin: 0.2rem 0;">Diabetes Risk</h3>
+      <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.5rem;">Relevant information: {{ d_res.features_found|length }} features</div>
+      {% if d_res.evaluated %}
+        <div class="risk-prob-big">{{ d_res.probability_pct }}%</div>
+        <span class="badge {% if d_res.predicted_class == 1 %}badge-danger{% else %}badge-verified{% endif %}">
+          {{ d_res.risk_label }}
+        </span>
+        <div class="risk-model-tag" style="margin-top: 0.6rem;">
+          Served algorithm: <strong>{{ d_res.model_name }}</strong><br>
+          Feature Coverage: <strong>{{ d_res.feature_coverage }}</strong>
+        </div>
+        <div style="margin-top: 1rem; text-align: left; font-size: 0.85rem;">
+          <strong>Observed:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #16a34a; list-style-type: '✓ ';">
+            {% for f in d_res.features_found %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+          <strong>Missing:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #94a3b8; list-style-type: '- ';">
+            {% for f in d_res.features_missing %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p style="color: #64748b; font-size: 0.88rem; margin: 0.5rem 0;">{{ d_res.reason }}</p>
+        <span class="badge badge-missing">Not Evaluated</span>
+      {% endif %}
+    </div>
+
+    <!-- 2. Heart Disease -->
+    {% set h_res = disease_results.heart_disease %}
+    <div class="disease-card {% if not h_res.evaluated %}risk-unevaluated{% elif h_res.predicted_class == 1 %}risk-elevated{% else %}risk-normal{% endif %}">
+      <div class="eyebrow">Cardiovascular</div>
+      <h3 style="margin: 0.2rem 0;">Heart Disease Risk</h3>
+      <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.5rem;">Relevant information: {{ h_res.features_found|length }} features</div>
+      {% if h_res.evaluated %}
+        <div class="risk-prob-big">{{ h_res.probability_pct }}%</div>
+        <span class="badge {% if h_res.predicted_class == 1 %}badge-danger{% else %}badge-verified{% endif %}">
+          {{ h_res.risk_label }}
+        </span>
+        <div class="risk-model-tag" style="margin-top: 0.6rem;">
+          Served algorithm: <strong>{{ h_res.model_name }}</strong><br>
+          Feature Coverage: <strong>{{ h_res.feature_coverage }}</strong>
+        </div>
+        <div style="margin-top: 1rem; text-align: left; font-size: 0.85rem;">
+          <strong>Observed:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #16a34a; list-style-type: '✓ ';">
+            {% for f in h_res.features_found %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+          <strong>Missing:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #94a3b8; list-style-type: '- ';">
+            {% for f in h_res.features_missing %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p style="color: #64748b; font-size: 0.88rem; margin: 0.5rem 0;">{{ h_res.reason }}</p>
+        <span class="badge badge-missing">Not Evaluated</span>
+      {% endif %}
+    </div>
+
+    <!-- 3. Chronic Kidney Disease (CKD) -->
+    {% set k_res = disease_results.kidney_disease %}
+    <div class="disease-card {% if not k_res.evaluated %}risk-unevaluated{% elif k_res.predicted_class == 1 %}risk-elevated{% else %}risk-normal{% endif %}">
+      <div class="eyebrow">Renal Function</div>
+      <h3 style="margin: 0.2rem 0;">Kidney Disease (CKD)</h3>
+      <div style="font-size: 0.85rem; color: #475569; margin-bottom: 0.5rem;">Relevant information: {{ k_res.features_found|length }} features</div>
+      {% if k_res.evaluated %}
+        <div class="risk-prob-big">{{ k_res.probability_pct }}%</div>
+        <span class="badge {% if k_res.predicted_class == 1 %}badge-danger{% else %}badge-verified{% endif %}">
+          {{ k_res.risk_label }}
+        </span>
+        <div class="risk-model-tag" style="margin-top: 0.6rem;">
+          Served algorithm: <strong>{{ k_res.model_name }}</strong><br>
+          Feature Coverage: <strong>{{ k_res.feature_coverage }}</strong>
+        </div>
+        <div style="margin-top: 1rem; text-align: left; font-size: 0.85rem;">
+          <strong>Observed:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #16a34a; list-style-type: '✓ ';">
+            {% for f in k_res.features_found %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+          <strong>Missing:</strong>
+          <ul style="margin: 0.2rem 0; padding-left: 1rem; color: #94a3b8; list-style-type: '- ';">
+            {% for f in k_res.features_missing %}<li>{{ f }}</li>{% endfor %}
+          </ul>
+        </div>
+      {% else %}
+        <p style="color: #64748b; font-size: 0.88rem; margin: 0.5rem 0;">{{ k_res.reason }}</p>
+        <span class="badge badge-missing">Not Evaluated</span>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION E: Explainable AI (SHAP & LIME) ─────────────────────────── -->
+<div class="card">
+  <h2>Explainable AI (XAI) Attribution Analysis</h2>
+  <p class="muted">Local explanations quantifying why these risk levels were estimated for this patient (SHapley Additive exPlanations & LIME local surrogates):</p>
+
+  <!-- SHAP Section -->
+  <div style="margin-top: 1.25rem;">
+    <h3 style="margin-bottom: 0.4rem; font-size: 1.05rem;">SHAP Feature Importance & Contribution Breakdown</h3>
+    <p class="muted" style="font-size: 0.85rem;">Relative influence of patient biomarkers pushing the prediction towards higher estimated risk (red) or lower risk (green):</p>
+
+    <div class="xai-chart">
+      {% for contrib in shap_explanation.top_contributions %}
+        <div class="xai-bar-row">
+          <div>
+            <strong>{{ contrib.label }}</strong>
+            {% if contrib.raw_value is not none and not (contrib.raw_value|string == "nan") %}
+              <span class="hint">Source: PDF (Observed) | {{ contrib.raw_value }}</span>
+            {% else %}
+              <span class="hint" style="color:#ef4444;">Status: Imputed by training pipeline</span>
+            {% endif %}
+          </div>
+          <div class="xai-bar-track">
+            <div class="xai-bar-fill {% if contrib.impact_direction == 'higher_risk' %}xai-fill-high{% else %}xai-fill-low{% endif %}" style="width: {{ contrib.bar_percentage }}%;"></div>
+          </div>
+          <div style="font-weight: 600; text-align: right; color: {% if contrib.impact_direction == 'higher_risk' %}#dc2626{% else %}#16a34a{% endif %};">
+            {% if contrib.shap_value > 0 %}+{% endif %}{{ contrib.shap_value }}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Non-Causal Summary Narrative -->
+    <div style="background: #f8fafc; border-left: 4px solid var(--accent); padding: 0.8rem 1rem; border-radius: 4px; margin-top: 1rem;">
+      <div style="font-weight: 600; font-size: 0.9rem; color: var(--ink); margin-bottom: 0.3rem;">Observation Summary:</div>
+      <ul style="margin: 0; padding-left: 1.2rem; font-size: 0.88rem; color: #334155;">
+        {% for bullet in shap_explanation.summary_bullets %}
+          <li>{{ bullet }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- LIME Section -->
+  {% if lime_explanation.available and lime_explanation.rules %}
+    <div style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--line);">
+      <h3 style="margin-bottom: 0.4rem; font-size: 1.05rem;">LIME Local Surrogate Decision Rules</h3>
+      <p class="muted" style="font-size: 0.85rem;">Interpretable localized perturbation boundaries derived around this patient's feature space:</p>
+      
+      <div class="xai-chart">
+        {% for rule in lime_explanation.rules %}
+          <div class="xai-bar-row">
+            <div><strong>{{ rule.condition }}</strong></div>
+            <div class="xai-bar-track">
+              <div class="xai-bar-fill {% if rule.impact_direction == 'higher_risk' %}xai-fill-high{% else %}xai-fill-low{% endif %}" style="width: {{ rule.bar_percentage }}%;"></div>
+            </div>
+            <div style="font-weight: 600; text-align: right; color: {% if rule.impact_direction == 'higher_risk' %}#dc2626{% else %}#16a34a{% endif %};">
+              {% if rule.weight > 0 %}+{% endif %}{{ rule.weight }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+<!-- ── SECTION F: Clinical Decision Support ────────────────────────────── -->
+<div class="cds-card">
+  <h3>🩺 {{ decision_support.title }}</h3>
+  <p class="muted" style="margin: 0.3rem 0 0.8rem; font-size: 0.88rem;">AI-assisted research observations derived from statistical model patterns:</p>
+
+  {% for disease_name, info in decision_support.observations_by_disease.items() %}
+    <div style="margin-bottom: 0.8rem;">
+      <strong>{{ disease_name }} ({{ info.risk_percentage }}% estimated probability via {{ info.model_name }}):</strong>
+      <ul>
+        {% for obs in info.observations %}
+          <li>{{ obs }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  {% endfor %}
+
+  <div style="margin-top: 1rem; padding-top: 0.8rem; border-top: 1px solid #b2d8d8;">
+    <strong>Suggested Clinical Follow-up Discussion Points:</strong>
+    <ul>
+      {% for sug in decision_support.suggested_follow_up %}
+        <li>{{ sug }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <p style="font-size: 0.82rem; color: #475569; margin: 1rem 0 0; font-style: italic;">
+    {{ decision_support.disclaimer }}
+  </p>
+</div>
+
+<!-- ── SECTION A & B: Uploaded Document & Extracted Biomarkers ─────────── -->
+<div class="card">
+  <h2>Patient Medical Report & Extracted Parameters</h2>
+  <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--line);">
+    <div><span class="muted">File Name:</span> <strong>{{ report_meta.file_name }}</strong></div>
+    <div><span class="muted">File Size:</span> <strong>{{ report_meta.file_size_kb }} KB</strong></div>
+    <div><span class="muted">Extraction Mode:</span> <span class="badge badge-info">{% if report_meta.ocr_used %}Scanned OCR{% else %}Digital PDF{% endif %}</span></div>
+  </div>
+
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Biomarker</th>
+        <th>Measured Value</th>
+        <th>Standard Unit</th>
+        <th>Confidence</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for key, p in extracted_parameters.items() %}
+        <tr>
+          <td><strong>{{ p.label }}</strong></td>
+          <td>{{ p.normalized_value }}</td>
+          <td>{{ p.standard_unit }}</td>
+          <td><span class="badge badge-verified">{{ "%.0f"|format(p.confidence * 100) }}%</span></td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<!-- ── SECTION G: Prominent Clinical Disclaimer ────────────────────────── -->
+<section class="notice">
+  <strong>Clinical Disclaimer: Prediction Reliability Warning:</strong>
+  This is a model-generated risk estimate based on the available information extracted from the report.
+  Missing clinical features were handled by the model's training-calibrated preprocessing pipeline.
+  This result is not a medical diagnosis. Healthcare decisions must be directed by qualified physicians.
+</section>
+
+<!-- Action Buttons -->
+<div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1.5rem 0;">
+  <a href="{{ url_for('predict') }}" class="button">
+    📄 Upload Another Medical Report
+  </a>
+  <a href="{{ url_for('visualize') }}" class="button" style="background: #3b82f6;">
+    📊 View Multi-Disease Model Analytics
+  </a>
+  <button type="button" class="button" style="background: #475569;" onclick="window.print()">
+    🖨️ Print Clinical Summary
+  </button>
+</div>
+
+{% endblock %}

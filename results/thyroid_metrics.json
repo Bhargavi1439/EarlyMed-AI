@@ -1,0 +1,92 @@
+{
+  "logistic_regression": {
+    "accuracy": 0.974025974025974,
+    "precision": 1.0,
+    "recall": 0.9090909090909091,
+    "specificity": 1.0,
+    "f1": 0.9523809523809523,
+    "roc_auc": 0.9900826446280993,
+    "f_beta": 0.9259259259259259,
+    "pr_auc": 0.9802869544248853,
+    "log_loss": 0.1061115593232874,
+    "mcc": 0.9365858115816941,
+    "confusion_matrix": {
+      "true_negative": 55,
+      "false_positive": 0,
+      "false_negative": 2,
+      "true_positive": 20
+    }
+  },
+  "decision_tree": {
+    "accuracy": 0.948051948051948,
+    "precision": 0.95,
+    "recall": 0.8636363636363636,
+    "specificity": 0.9818181818181818,
+    "f1": 0.9047619047619048,
+    "roc_auc": 0.9694214876033058,
+    "f_beta": 0.8796296296296297,
+    "pr_auc": 0.9501135228407956,
+    "log_loss": 0.556309599866663,
+    "mcc": 0.8710248047709754,
+    "confusion_matrix": {
+      "true_negative": 54,
+      "false_positive": 1,
+      "false_negative": 3,
+      "true_positive": 19
+    }
+  },
+  "random_forest": {
+    "accuracy": 0.961038961038961,
+    "precision": 1.0,
+    "recall": 0.8636363636363636,
+    "specificity": 1.0,
+    "f1": 0.926829268292683,
+    "roc_auc": 0.9950413223140495,
+    "f_beta": 0.8878504672897196,
+    "pr_auc": 0.9895163758800121,
+    "log_loss": 0.1458211465993193,
+    "mcc": 0.9049671360007385,
+    "confusion_matrix": {
+      "true_negative": 55,
+      "false_positive": 0,
+      "false_negative": 3,
+      "true_positive": 19
+    }
+  },
+  "xgboost": {
+    "accuracy": 0.974025974025974,
+    "precision": 1.0,
+    "recall": 0.9090909090909091,
+    "specificity": 1.0,
+    "f1": 0.9523809523809523,
+    "roc_auc": 0.9942148760330578,
+    "f_beta": 0.9259259259259259,
+    "pr_auc": 0.9881936245572609,
+    "log_loss": 0.08054658770561218,
+    "mcc": 0.9365858115816941,
+    "confusion_matrix": {
+      "true_negative": 55,
+      "false_positive": 0,
+      "false_negative": 2,
+      "true_positive": 20
+    }
+  },
+  "naive_bayes": {
+    "accuracy": 0.935064935064935,
+    "precision": 0.9473684210526315,
+    "recall": 0.8181818181818182,
+    "specificity": 0.9818181818181818,
+    "f1": 0.8780487804878049,
+    "roc_auc": 0.9789256198347108,
+    "f_beta": 0.8411214953271028,
+    "pr_auc": 0.9204984330255228,
+    "log_loss": 2.195712598276667,
+    "mcc": 0.8382853470322631,
+    "confusion_matrix": {
+      "true_negative": 54,
+      "false_positive": 1,
+      "false_negative": 4,
+      "true_positive": 18
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Home · EarlyMed-AI{% endblock %}
+{% block content %}
+<div class="landing-page">
+  <section class="hero-section">
+    <div class="hero-content">
+      <span class="eyebrow fade-in-up">AI-Powered Diagnostic Assistance</span>
+      <h1 class="fade-in-up" style="animation-delay: 0.1s;">Early detection for a healthier tomorrow.</h1>
+      <p class="lede fade-in-up" style="animation-delay: 0.2s;">
+        EarlyMed-AI leverages advanced machine learning to provide early risk assessment for chronic conditions. Empowering clinicians with data-driven insights.
+      </p>
+      <div class="hero-actions fade-in-up" style="animation-delay: 0.3s;">
+        <a href="{{ url_for('predict') }}" class="button button-primary">Start Risk Assessment</a>
+        <a href="{{ url_for('visualize') }}#eda-tab" class="button button-secondary">Explore Data</a>
+      </div>
+    </div>
+    <div class="hero-visual fade-in" style="animation-delay: 0.4s;">
+      <div class="glass-card">
+        <div class="glass-icon">⚕️</div>
+        <div class="glass-text">
+          <strong>Multi-Disease Risk Module</strong>
+          <span>Active & Calibrated</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="features-section">
+    <div class="section-header fade-in-up" style="animation-delay: 0.2s;">
+      <h2>Why choose EarlyMed-AI?</h2>
+      <p class="muted">A comprehensive suite of tools designed for clinical research and early screening.</p>
+    </div>
+    <div class="grid feature-grid">
+      <article class="card feature-card hover-lift fade-in-up" style="animation-delay: 0.3s;">
+        <div class="feature-icon">🔍</div>
+        <h3>Predictive Analytics</h3>
+        <p>Uses an ensemble of machine learning models to deliver highly accurate risk predictions based on clinical features.</p>
+      </article>
+      <article class="card feature-card hover-lift fade-in-up" style="animation-delay: 0.4s;">
+        <div class="feature-icon">📊</div>
+        <h3>Interactive EDA</h3>
+        <p>Visualize patient cohorts, discover hidden patterns, and explore risk factor distributions with our dynamic dashboard.</p>
+      </article>
+      <article class="card feature-card hover-lift fade-in-up" style="animation-delay: 0.5s;">
+        <div class="feature-icon">🧠</div>
+        <h3>Explainable AI (XAI)</h3>
+        <p>Understand the 'why' behind every prediction. We ensure our models are transparent and interpretable by medical professionals.</p>
+      </article>
+      <article class="card feature-card hover-lift fade-in-up" style="animation-delay: 0.6s;">
+        <div class="feature-icon">🔒</div>
+        <h3>Privacy First</h3>
+        <p>Built with data security in mind. Patient data is processed locally within the session and never permanently stored.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="notice disclaimer-banner fade-in" style="animation-delay: 0.8s;">
+    <strong>Clinical disclaimer.</strong>
+    Predictions are statistical estimates from a public research dataset. They are not a diagnosis, treatment recommendation, or certified medical device.
+  </section>
+</div>
+{% endblock %}
